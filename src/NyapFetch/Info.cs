@@ -7,7 +7,28 @@ namespace NyapFetch
     private static string? s_osInfo;
     public static string GetOS()
     {
-      s_osInfo = Environment.OSVersion.ToString();
+      var file = File.OpenRead("/etc/os-release");
+      var stream = new StreamReader(file);
+
+      while (!stream.EndOfStream)
+      {
+        string? line = stream.ReadLine();
+        if (line != null && line.Contains("PRETTY_NAME"))
+        {
+          s_osInfo = line;
+          break;
+        }
+      }
+
+      if (s_osInfo == null)
+      {
+        s_osInfo = "Undefined";
+      }
+      else
+      {
+        s_osInfo = Regex.Replace(s_osInfo, "(PRETTY_NAME\\=)", String.Empty);
+      }
+
       return s_osInfo;
     }
 
